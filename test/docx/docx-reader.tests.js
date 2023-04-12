@@ -22,7 +22,7 @@ test("can read document with single paragraph with single run of text", function
         "word/document.xml": testData("simple/word/document.xml")
     });
     return docxReader.read(docxFile).then(function(result) {
-        assert.deepEqual(expectedDocument, result.value);
+        assert.deepEqual(expectedDocument, result.value.document.value);
     });
 });
 
@@ -32,7 +32,7 @@ test("hyperlink hrefs are read from relationships file", function() {
         "word/_rels/document.xml.rels": testData("hyperlinks/word/_rels/document.xml.rels")
     });
     return docxReader.read(docxFile).then(function(result) {
-        var paragraph = result.value.children[0];
+        var paragraph = result.value.document.value.children[0];
         assert.equal(1, paragraph.children.length);
         var hyperlink = paragraph.children[0];
         assert.equal(hyperlink.href, "http://www.example.com");
@@ -51,7 +51,7 @@ test("main document is found using _rels/.rels", function() {
             "Target": "/word/document2.xml"
         })
     ]);
-    
+
     var docxFile = createFakeDocxFile({
         "word/document2.xml": testData("simple/word/document.xml"),
         "_rels/.rels": xml.writeString(relationships, relationshipNamespaces)
@@ -64,7 +64,7 @@ test("main document is found using _rels/.rels", function() {
         ])
     ]);
     return docxReader.read(docxFile).then(function(result) {
-        assert.deepEqual(expectedDocument, result.value);
+        assert.deepEqual(expectedDocument, result.value.document.value);
     });
 });
 
@@ -76,7 +76,7 @@ test("error is thrown when main document part does not exist", function() {
             "Target": "/word/document2.xml"
         })
     ]);
-    
+
     var docxFile = createFakeDocxFile({
         "_rels/.rels": xml.writeString(relationships, relationshipNamespaces)
     });
@@ -96,7 +96,7 @@ test("part paths", {
                 "Target": "/word/document2.xml"
             })
         ]);
-        
+
         var docxFile = createFakeDocxFile({
             "word/document2.xml": " ",
             "_rels/.rels": xml.writeString(relationships, relationshipNamespaces)
@@ -105,7 +105,7 @@ test("part paths", {
             assert.equal(partPaths.mainDocument, "word/document2.xml");
         });
     },
-    
+
     "word/document.xml is used as fallback location for main document part": function() {
         var docxFile = createFakeDocxFile({
             "word/document.xml": " "
